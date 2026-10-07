@@ -19,16 +19,16 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 <canvas id="cv"></canvas>
 <div id="hud"><span>得点 <b id="sc">0</b></span><span>最高 <b id="hi">0</b></span><span>残り <b id="tm">60</b></span><span><button id="mu" class="s">音ON</button> <button id="fs" class="s">全画面</button></span></div>
 <div id="info"></div>
-<div id="ov"><h1>ヘブル文字ツム</h1><span style="display:flex;gap:12px"><button id="g0">ふつう</button><button id="g1">似た文字</button></span></div>
+<div id="ov"><h1>ヘブル文字ツム</h1><span style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><button id="g0">ふつう</button><button id="g1">似た文字</button><button id="g2">似た文字（色つき）</button></span></div>
 <script>
 const L_N=[["א","アレフ","牛","אָלֶף"],["ב","ベート","家","בֵּית"],["ג","ギメル","ラクダ","גִּימֶל"],["ד","ダレット","扉","דָּלֶת"],["ה","ヘー","窓／見よ","הֵא"],["ו","ヴァヴ","釘"],["ז","ザイン","武器"]];
 let L=L_N;
-const DB={"ח":["ח","ヘット","囲い／垣","חֵית"],"ה":["ה","ヘー","窓／見よ","הֵא"],"ז":["ז","ザイン","武器","זַיִן"],"ד":["ד","ダレット","扉","דָּלֶת"],"ו":["ו","ヴァヴ","釘","וָו"],"ב":["ב","ベート","家","בֵּית"],"כ":["כ","カフ","手のひら","כַּף"],"ר":["ר","レーシュ","頭","רֵישׁ"],"ת":["ת","タヴ","しるし","תָּו"],"ן":["ן","語末ヌン","魚","נוּן"],"נ":["נ","ヌン","魚","נוּן"],"ג":["ג","ギメル","ラクダ","גִּימֶל"],"י":["י","ヨッド","手","יוֹד"],"ם":["ם","語末メム","水","מֵם"],"ס":["ס","サメフ","支え","סָמֶךְ"],"מ":["מ","メム","水","מֵם"],"ך":["ך","語末カフ","手のひら","כַּף"],"ק":["ק","コフ","後頭部／針の穴（諸説）","קוֹף"]};
+const DB={"ח":["ח","ヘット","囲い／垣","חֵית"],"ה":["ה","ヘー","窓／見よ","הֵא"],"ז":["ז","ザイン","武器","זַיִן"],"ד":["ד","ダレット","扉","דָּלֶת"],"ו":["ו","ヴァヴ","釘","וָו"],"ב":["ב","ベート","家","בֵּית"],"כ":["כ","カフ","手のひら","כַּף"],"ר":["ר","レーシュ","頭","רֵישׁ"],"ת":["ת","タヴ","しるし","תָּו"],"ן":["ן","ヌン","魚","נוּן"],"נ":["נ","ヌン","魚","נוּן"],"ג":["ג","ギメル","ラクダ","גִּימֶל"],"י":["י","ヨッド","手","יוֹד"],"ם":["ם","メム","水","מֵם"],"ס":["ס","サメフ","支え","סָמֶךְ"],"מ":["מ","メム","水","מֵם"],"ך":["ך","カフ","手のひら","כַּף"],"ק":["ק","コフ","後頭部／針の穴（諸説）","קוֹף"]};
 const SETS=["חהזדו","בכדרה","החתדר","וזןינ","גנםסמ","ךדרקכ"];let lastSet=-1;
 function pickSet(){let i;do{i=Math.random()*SETS.length|0}while(i===lastSet&&SETS.length>1);lastSet=i;return[...SETS[i]].map(c=>DB[c])}
 const C_N=["#f2b84b","#ef7b6c","#7fd1a0","#6fb7f2","#c59cf2","#f29cc8","#e8e07a"],C_S=Array(7).fill("#f2b84b");
 let C=C_N,mode=0,hiKey="hebtsum";
-const KINDS=5;
+const KINDS=5,LINK=3.2;
 let W=360,H=560,R=27,N=46,dpr=1;
 const cv=document.getElementById("cv"),x=cv.getContext("2d");
 const $=id=>document.getElementById(id);
@@ -40,11 +40,11 @@ function size(){R=Math.max(22,Math.min(34,Math.min(W,H)/11));N=Math.min(160,Math
 fit();size();
 addEventListener("resize",()=>{fit();if(!run)size()});
 function mk(i){const px=R+Math.random()*(W-2*R),py=-R-i*(R*1.3);return{x:px,y:py,px:px,py:py,k:Math.random()*KINDS|0}}
-function setMode(m){mode=m;L=m?pickSet():L_N;C=m?C_S:C_N;hiKey=m?"hebtsum2":"hebtsum";try{hi=+localStorage.getItem(hiKey)||0}catch(e){hi=0}$("hi").textContent=hi;$("info").textContent=m?L.map(l=>l[0]).join(" "):""}
-function bind(){$("g0").onclick=()=>start(0);$("g1").onclick=()=>start(1)}
+function setMode(m){mode=m;L=m?pickSet():L_N;C=m===1?C_S:C_N;hiKey=["hebtsum","hebtsum2","hebtsum3"][m];try{hi=+localStorage.getItem(hiKey)||0}catch(e){hi=0}$("hi").textContent=hi;$("info").textContent=m?L.map(l=>l[0]).join(" "):""}
+function bind(){$("g0").onclick=()=>start(0);$("g1").onclick=()=>start(1);$("g2").onclick=()=>start(2)}
 function start(m){setMode(m);ac();if(window.speechSynthesis){try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}}[0,2,4,7].forEach((n,i)=>tone(nf(n),.18,"triangle",.14,0,i*.09));parts=[];floats=[];size();P=[];for(let i=0;i<N;i++)P.push(mk(i));score=0;left=60;run=true;chain=[];$("sc").textContent=0;$("ov").style.display="none";last=performance.now()}
 function end(){run=false;chain=[];[7,4,2,0].forEach((n,i)=>tone(nf(n),.3,"triangle",.14,0,i*.14));if(score>hi){hi=score;try{localStorage.setItem(hiKey,hi)}catch(e){}$("hi").textContent=hi}
-$("ov").innerHTML="<h1>終了</h1><p>得点 "+score+"<br>最高 "+hi+"</p><span style='display:flex;gap:12px'><button id='g0'>ふつう</button><button id='g1'>似た文字</button></span>";$("ov").style.display="flex";bind()}
+$("ov").innerHTML="<h1>終了</h1><p>得点 "+score+"<br>最高 "+hi+"</p><span style='display:flex;gap:12px;flex-wrap:wrap;justify-content:center'><button id='g0'>ふつう</button><button id='g1'>似た文字</button><button id='g2'>似た文字（色つき）</button></span>";$("ov").style.display="flex";bind()}
 bind();
 const de=document.documentElement,reqFS=de.requestFullscreen||de.webkitRequestFullscreen;
 if(!reqFS)$("fs").style.display="none";
@@ -54,9 +54,9 @@ function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)
 function tone(f,d,ty,v,sl,dl){if(muted||!AC)return;const t=AC.currentTime+(dl||0),o=AC.createOscillator(),g=AC.createGain();o.type=ty||"sine";o.frequency.setValueAtTime(f,t);if(sl)o.frequency.exponentialRampToValueAtTime(Math.max(30,sl),t+d);g.gain.setValueAtTime(v||.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(MS);o.start(t);o.stop(t+d+.02)}
 const PENT=[0,2,4,7,9,12,14,16,19,21,24,26,28,31,33];
 const nf=i=>262*Math.pow(2,PENT[Math.min(i,PENT.length-1)]/12);
-let UT=null;
+let UT=null;const YOMI={"ヌン":"ヌーン"};
 if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}
-function say(i,n){if(muted||!window.speechSynthesis)return;try{const ss=speechSynthesis,t=n>=15?3:n>=10?2:n>=6?1:0,w=L[i][1],u=new SpeechSynthesisUtterance([w,w+"！",w+"！"+w+"！",w+"！"+w+"！"+w+"！！"][t]);
+function say(i,n){if(muted||!window.speechSynthesis)return;try{const ss=speechSynthesis,t=n>=15?3:n>=10?2:n>=6?1:0,w=YOMI[L[i][1]]||L[i][1],u=new SpeechSynthesisUtterance([w,w+"！",w+"！"+w+"！",w+"！"+w+"！"+w+"！！"][t]);
 const v=ss.getVoices().find(v=>v.lang.toLowerCase().replace("_","-").startsWith("ja"));if(v)u.voice=v;
 u.lang="ja-JP";u.pitch=[1,1.1,1.2,1.3][t];u.rate=[1,1.05,1.15,1.2][t];u.volume=1;
 u.onerror=e=>{if(e.error!=="canceled"&&e.error!=="interrupted")$("info").textContent="音声エラー: "+e.error};
@@ -67,7 +67,7 @@ cx/=n;cy/=n;floats.push({x:cx,y:cy,l:50,t:"+"+(n*10+(n-3)*8),c:"#fff",z:26});
 if(n>=15)floats.push({x:cx,y:cy-70,l:70,t:"נפלא!",c:"#f29cc8",z:40});if(n>=10)floats.push({x:cx,y:cy-34,l:60,t:"מצוין!",c:"#f2b84b",z:34});else if(n>=6)floats.push({x:cx,y:cy-30,l:55,t:"טוב!",c:"#7fd1a0",z:30});
 shake=n>=8?Math.min(14,n*.9):0;flash=n>=15?.7:n>=10?.4:0}
 let fr=0;
-function adj(a,b){return a.k===b.k&&Math.hypot(a.x-b.x,a.y-b.y)<R*2.7}
+function adj(a,b){return a.k===b.k&&Math.hypot(a.x-b.x,a.y-b.y)<R*LINK}
 function hasChain(){const seen=new Set();for(const s of P){if(seen.has(s))continue;let st=[s],n=0;seen.add(s);
 while(st.length){const a=st.pop();n++;for(const b of P)if(!seen.has(b)&&adj(a,b)){seen.add(b);st.push(b)}}
 if(n>=3)return true}return false}
@@ -106,12 +106,12 @@ if(run&&++fr%30===0&&!chain.length&&P.length>2&&settled()&&!hasChain())shuffle()
 phys();draw();requestAnimationFrame(loop)}
 requestAnimationFrame(t=>{last=t;loop(t)});
 function pos(e){const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
-function hit(mx,my){let best=null,bd=R*1.0;for(const p of P){const d=Math.hypot(p.x-mx,p.y-my);if(d<bd){bd=d;best=p}}return best}
+function hit(mx,my){let best=null,bd=R*1.1;for(const p of P){const d=Math.hypot(p.x-mx,p.y-my);if(d<bd){bd=d;best=p}}return best}
 cv.addEventListener("pointerdown",e=>{if(!run)return;ac();cv.setPointerCapture(e.pointerId);const[mx,my]=pos(e),p=hit(mx,my);chain=p?[p]:[]});
 cv.addEventListener("pointermove",e=>{if(!run||!chain.length)return;const[mx,my]=pos(e),p=hit(mx,my);if(!p)return;
 const lst=chain[chain.length-1];if(p===lst)return;
 if(chain.length>1&&p===chain[chain.length-2]){chain.pop();tone(nf(chain.length-1),.08,"sine",.08);return}
-if(p.k===lst.k&&!chain.includes(p)&&Math.hypot(p.x-lst.x,p.y-lst.y)<R*2.7){chain.push(p);tone(nf(chain.length-1),.12,"sine",.16)}});
+if(p.k===lst.k&&!chain.includes(p)&&Math.hypot(p.x-lst.x,p.y-lst.y)<R*LINK){chain.push(p);tone(nf(chain.length-1),.12,"sine",.16)}});
 function up(){if(!chain.length)return;const n=chain.length;
 if(n>=3){const k=chain[0].k;const cl=chain.slice();for(const c of chain)burst.push({x:c.x,y:c.y,k,t:20});spawnFx(cl,k,n);for(let i=0;i<Math.min(n,10);i++)tone(nf(i)*2,.15,"triangle",.1,0,i*.03);tone(120,.2,"sine",.25,50);say(k,n);if(n>=10)[0,4,7].forEach(j=>tone(nf(j+5),.5,"triangle",.1,0,.1));if(n>=15)tone(300,.7,"sawtooth",.06,1800);
 P=P.filter(p=>!chain.includes(p));score+=n*10+(n-3)*8;$("sc").textContent=score;
